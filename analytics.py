@@ -49,3 +49,39 @@ print("\nDUPLICATES:")
 
 for transaction in duplicates:
     print(transaction)
+
+def category_totals(transactions):
+    totals = {}
+
+    for transaction in transactions:
+        category = transaction.category
+
+        if category not in totals:
+            totals[category] = 0
+
+        totals[category] += transaction.amount
+
+    return totals  
+
+totals = category_totals(transactions)
+
+print("\nCATEGORY TOTALS:")
+
+for category, total in totals.items():
+    print(category, total)
+
+def find_outliers(transactions, threshold=3000):
+    outliers = []
+
+    for transaction in transactions:
+        if abs(transaction.amount) >= threshold:
+            outliers.append(transaction)
+
+    return outliers  
+
+outliers = find_outliers(transactions)
+
+print("\nOUTLIERS:")
+
+for transaction in outliers:
+    print(transaction)
