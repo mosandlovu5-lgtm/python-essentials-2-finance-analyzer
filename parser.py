@@ -74,6 +74,8 @@ def load_transactions(path):
                 f"Line {line_number}: invalid amount"
             )
             continue
+
+        
         if float_amount > 0 and category == "EXPENSE":
             rejection_reasons.append(
                 f"Line {line_number}: income amount cannot have EXPENSE category"
