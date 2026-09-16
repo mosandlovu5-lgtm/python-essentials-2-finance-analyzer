@@ -65,3 +65,26 @@ transaction_summary(transactions)
 category_report(transactions)
 duplicate_report(transactions)
 outlier_report(transactions)
+
+def rejection_report(rejections):
+    print("\nREJECTION REPORT")
+    print("-" * 30)
+
+    if not rejections:
+        print("No rejected transactions.")
+        return
+
+    for rejection in rejections:
+        print(rejection)
+
+        rejection_report(rejections)
+
+from parser import transactions
+
+def save_report(transactions):
+    with open("data/report.txt", "w") as file:
+        file.write("FINANCE ANALYZER REPORT\n")
+        file.write("=" * 30 + "\n")
+        file.write(f"Total Transactions: {len(transactions)}\n")
+
+save_report(transactions)
