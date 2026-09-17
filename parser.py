@@ -1,10 +1,15 @@
+import os
+from datetime import datetime
+
 from models import Transaction
 
 
 def generate_sample_file():
+    os.makedirs("data", exist_ok=True)
+
     with open("data/statement.txt", "w") as file:
         file.write(
-    """2026-08-01,Salary,15000,INCOME
+            """2026-08-01,Salary,15000,INCOME
 2026/08/03,Freelance,2500,INCOME
 2026-08-04,Groceries,-450.50,FOOD
 hello world
@@ -17,12 +22,10 @@ hello world
 2026-08-10, Petrol , -800 , TRANSPORT
 2026-08-11,Gift,500,INCOME
 """
-)
+        )
 
     print("Sample statement file created.")
 
-
-generate_sample_file()
 
 def load_transactions(path):
     transactions = []
@@ -31,7 +34,6 @@ def load_transactions(path):
     try:
         with open(path, "r") as file:
             lines = file.readlines()
-
     except FileNotFoundError:
         print("File not found.")
         return [], ["File not found"]
@@ -75,7 +77,6 @@ def load_transactions(path):
             )
             continue
 
-        
         if float_amount > 0 and category == "EXPENSE":
             rejection_reasons.append(
                 f"Line {line_number}: income amount cannot have EXPENSE category"
@@ -89,7 +90,6 @@ def load_transactions(path):
             continue
 
         try:
-            from datetime import datetime
             datetime.strptime(date, "%Y-%m-%d")
         except ValueError:
             rejection_reasons.append(
@@ -108,14 +108,16 @@ def load_transactions(path):
 
     return transactions, rejection_reasons
 
-transactions, rejections = load_transactions("data/statement.txt")
 
-print("\nVALID TRANSACTIONS:")
+if __name__ == "__main__":
+    generate_sample_file()
 
-for transaction in transactions:
-    print(transaction)
+    transactions, rejections = load_transactions("data/statement.txt")
 
-print("\nREJECTIONS:")
+    print("\nVALID TRANSACTIONS:")
+    for transaction in transactions:
+        print(transaction)
 
-for reason in rejections:
-    print(reason)
+    print("\nREJECTIONS:")
+    for reason in rejections:
+        print(reason)
