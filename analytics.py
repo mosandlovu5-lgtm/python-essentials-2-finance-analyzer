@@ -1,24 +1,20 @@
-def running_balance(transactions):
-    balance = 0
+import statistics
+
+
+def running_balance(transactions, start=0.0):
+    balance = start
 
     for transaction in transactions:
         balance += transaction.amount
         yield balance
 
-def make_flagger(threshold): 
+
+def make_flagger(threshold):
     def flag_transaction(transaction):
         return abs(transaction.amount) > threshold
 
-    return flag_transaction   
+    return flag_transaction
 
-from parser import load_transactions
-
-transactions, rejections = load_transactions("data/statement.txt")
-
-print("RUNNING BALANCE:")
-
-for balance in running_balance(transactions):
-    print(balance)
 
 def flag_closure(transactions):
     balances = list(running_balance(transactions))
@@ -28,8 +24,6 @@ def flag_closure(transactions):
 
     return balances[-1] == 0
 
-print("\nCLOSURE FLAG:")
-print(flag_closure(transactions))
 
 def find_duplicates(transactions):
     seen = set()
@@ -49,12 +43,7 @@ def find_duplicates(transactions):
             seen.add(key)
 
     return duplicates
-duplicates = find_duplicates(transactions)
 
-print("\nDUPLICATES:")
-
-for transaction in duplicates:
-    print(transaction)
 
 def category_totals(transactions):
     totals = {}
@@ -67,27 +56,22 @@ def category_totals(transactions):
 
         totals[category] += transaction.amount
 
-    return totals  
+    return totals
 
-totals = category_totals(transactions)
 
-print("\nCATEGORY TOTALS:")
+def find_outliers(transactions):
+    if len(transactions) < 2:
+        return []
 
-for category, total in totals.items():
-    print(category, total)
+    amounts = [transaction.amount for transaction in transactions]
+    average = statistics.mean(amounts)
+    deviation = statistics.stdev(amounts)
 
-def find_outliers(transactions, threshold=3000):
-    outliers = []
+    if deviation == 0:
+        return []
 
-    for transaction in transactions:
-        if abs(transaction.amount) >= threshold:
-            outliers.append(transaction)
-
-    return outliers  
-
-outliers = find_outliers(transactions)
-
-print("\nOUTLIERS:")
-
-for transaction in outliers:
-    print(transaction)
+    return [
+        transaction
+        for transaction in transactions
+        if abs(transaction.amount - average) > 2 * deviation
+    ]
