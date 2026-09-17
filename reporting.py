@@ -1,41 +1,43 @@
-from parser import load_transactions
-from analytics import (
-    category_totals,
-    find_duplicates,
-    find_outliers
-)
+import os
+import platform
+from datetime import datetime
+
+from analytics import category_totals, find_duplicates, find_outliers
+
 
 def transaction_summary(transactions):
-    print("\nTRANSACTION SUMMARY")
-    print("-" * 30)
-
-    print(f"Total Transactions: {len(transactions)}")
-
     total_income = sum(
-        t.amount for t in transactions if t.amount > 0
+        transaction.amount
+        for transaction in transactions
+        if transaction.amount > 0
     )
 
     total_expenses = sum(
-        t.amount for t in transactions if t.amount < 0
+        transaction.amount
+        for transaction in transactions
+        if transaction.amount < 0
     )
 
+    print("\nTRANSACTION SUMMARY")
+    print("-" * 30)
+    print(f"Total Transactions: {len(transactions)}")
     print(f"Total Income: {total_income:.2f}")
     print(f"Total Expenses: {total_expenses:.2f}")
+
 
 def category_report(transactions):
     print("\nCATEGORY REPORT")
     print("-" * 30)
 
-    totals = category_totals(transactions)
+    for category, total in category_totals(transactions).items():
+        print(f"{category}: {total:.2f}")
 
-    for category, total in totals.items():
-        print(f"{category}: {total:.2f}") 
 
 def duplicate_report(transactions):
+    duplicates = find_duplicates(transactions)
+
     print("\nDUPLICATE REPORT")
     print("-" * 30)
-
-    duplicates = find_duplicates(transactions)
 
     if not duplicates:
         print("No duplicates found.")
@@ -44,11 +46,12 @@ def duplicate_report(transactions):
     for transaction in duplicates:
         print(transaction)
 
+
 def outlier_report(transactions):
+    outliers = find_outliers(transactions)
+
     print("\nOUTLIER REPORT")
     print("-" * 30)
-
-    outliers = find_outliers(transactions)
 
     if not outliers:
         print("No outliers found.")
@@ -57,14 +60,6 @@ def outlier_report(transactions):
     for transaction in outliers:
         print(transaction)
 
-transactions, rejections = load_transactions(
-    "data/statement.txt"
-)
-
-transaction_summary(transactions)
-category_report(transactions)
-duplicate_report(transactions)
-outlier_report(transactions)
 
 def rejection_report(rejections):
     print("\nREJECTION REPORT")
@@ -77,14 +72,74 @@ def rejection_report(rejections):
     for rejection in rejections:
         print(rejection)
 
-        rejection_report(rejections)
 
-from parser import transactions
+def monthly_summary(transactions, rejections=None):
+    if rejections is None:
+        rejections = []
 
-def save_report(transactions):
+    os.makedirs("data", exist_ok=True)
+
+    totals = category_totals(transactions)
+    duplicates = find_duplicates(transactions)
+    outliers = find_outliers(transactions)
+
+    total_income = sum(
+        transaction.amount
+        for transaction in transactions
+        if transaction.amount > 0
+    )
+
+    total_expenses = sum(
+        transaction.amount
+        for transaction in transactions
+        if transaction.amount < 0
+    )
+
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
     with open("data/report.txt", "w") as file:
-        file.write("FINANCE ANALYZER REPORT\n")
-        file.write("=" * 30 + "\n")
-        file.write(f"Total Transactions: {len(transactions)}\n")
+        file.write("FINANCE ANALYZER MONTHLY SUMMARY\n")
+        file.write("=" * 35 + "\n")
+        file.write(f"Generated: {timestamp}\n")
+        file.write(f"Operating System: {platform.system()}\n")
+        file.write(f"Platform: {platform.platform()}\n\n")
 
-save_report(transactions)
+        file.write(f"Total Transactions: {len(transactions)}\n")
+        file.write(f"Rejected Transactions: {len(rejections)}\n")
+        file.write(f"Total Income: {total_income:.2f}\n")
+        file.write(f"Total Expenses: {total_expenses:.2f}\n")
+        file.write(f"Net Balance: {total_income + total_expenses:.2f}\n\n")
+
+        file.write("CATEGORY TOTALS\n")
+        file.write("-" * 20 + "\n")
+        for category, total in totals.items():
+            file.write(f"{category}: {total:.2f}\n")
+
+        file.write("\nDUPLICATES\n")
+        file.write("-" * 20 + "\n")
+        file.write(f"Duplicates Found: {len(duplicates)}\n")
+
+        file.write("\nOUTLIERS\n")
+        file.write("-" * 20 + "\n")
+        file.write(f"Outliers Found: {len(outliers)}\n")
+
+        file.write("\nREJECTION REASONS\n")
+        file.write("-" * 20 + "\n")
+        if rejections:
+            for rejection in rejections:
+                file.write(f"{rejection}\n")
+        else:
+            file.write("No rejected transactions.\n")
+
+    with open("data/analyzer_runs.log", "a") as log_file:
+        log_file.write(
+            f"{timestamp} | "
+            f"transactions={len(transactions)} | "
+            f"rejections={len(rejections)}\n"
+        )
+
+    print("Report saved to data/report.txt")
+
+
+def save_report(transactions, rejections=None):
+    monthly_summary(transactions, rejections)
