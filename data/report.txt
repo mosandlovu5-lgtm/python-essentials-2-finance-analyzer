@@ -1,0 +1,34 @@
+FINANCE ANALYZER MONTHLY SUMMARY
+===================================
+Generated: 2026-09-17 18:32:05
+Operating System: Windows
+Platform: Windows-11-10.0.26200-SP0
+
+Total Transactions: 8
+Rejected Transactions: 4
+Total Income: 18000.00
+Total Expenses: -11400.50
+Net Balance: 6599.50
+
+CATEGORY TOTALS
+--------------------
+INCOME: 18000.00
+FOOD: -450.50
+HOUSING: -10000.00
+ENTERTAINMENT: -150.00
+TRANSPORT: -800.00
+
+DUPLICATES
+--------------------
+Duplicates Found: 1
+
+OUTLIERS
+--------------------
+Outliers Found: 1
+
+REJECTION REASONS
+--------------------
+Line 4: wrong number of fields
+Line 5: invalid amount
+Line 9: income amount cannot have EXPENSE category
+Line 10: wrong number of fields
