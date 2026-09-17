@@ -5,6 +5,12 @@ def running_balance(transactions):
         balance += transaction.amount
         yield balance
 
+def make_flagger(threshold): 
+    def flag_transaction(transaction):
+        return abs(transaction.amount) > threshold
+
+    return flag_transaction   
+
 from parser import load_transactions
 
 transactions, rejections = load_transactions("data/statement.txt")
